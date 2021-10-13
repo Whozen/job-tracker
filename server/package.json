@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "netlify-lambda build .",
+    "start": "netlify-lambda serve ."
   },
   "author": "Ujjen",
   "license": "ISC",
@@ -15,6 +17,8 @@
     "express": "^4.17.1",
     "json2csv": "^5.0.6",
     "mongoose": "^6.0.10",
-    "request-promise": "^4.2.6"
+    "netlify-lambda": "^2.0.14",
+    "request-promise": "^4.2.6",
+    "serverless-http": "^2.7.0"
   }
 }
