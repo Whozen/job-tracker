@@ -1,7 +1,7 @@
 const Opprty = require("../models/job-opportunities.model");
 const Sources = require("../models/job-sources.model");
 const mongoose = require("mongoose");
-const jobBoards = require("../jobBoards.json");
+const jobBoards = require("../data/jobBoards.json");
 const csvtojson = require("csvtojson");
 
 require('dotenv').config();
@@ -11,6 +11,9 @@ const jobSources = [];
 const sourcesList = jobBoards["job_boards"];
 
 const jobMap = [];
+const jobCount = new Map()
+jobCount.set('Company Website', 0);
+jobCount.set('Unknown', 0);
 
 loadSourceJSON();
 
@@ -19,6 +22,7 @@ async function loadSourceJSON() {
 
     for(let x in sourcesList) {
         jobMap.push({name: sourcesList[x]['name'], url: sourcesList[x]['root_domain']});
+        jobCount.set(sourcesList[x]['name'], 0);
         jobSources[i++] = new Sources({
             name: sourcesList[x]['name'],
             rating: sourcesList[x]['rating'],
@@ -31,17 +35,21 @@ async function loadSourceJSON() {
 
 function findSource(name, url) {
     if(url === "") {
+        jobCount.set('Unknown', jobCount.get('Unknown') + 1);
         return "Unknown";
     }
     for(let x in jobMap) {
         if(url.includes(jobMap[x].url)) {
-           return jobMap[x].name;
+            jobCount.set(jobMap[x].name, jobCount.get(jobMap[x].name) + 1)
+            return jobMap[x].name;
         }
     }
     
     if(url.includes(name.toLowerCase())) {
+        jobCount.set('Company Website', jobCount.get('Company Website') + 1);
         return "Company Website";
     } else {
+        jobCount.set('Unknown', jobCount.get('Unknown') + 1);
         return "Unknown";
     }
 }
@@ -94,7 +102,7 @@ async function jobSourceSeed() {
 
 function readCSV() {
     csvtojson()
-    .fromFile("../job_opportunities.csv")
+    .fromFile("../data/job_opportunities.csv")
     .then(csvData => {
         loadOpprJSON(csvData);
         jobOpprSeed();
@@ -110,10 +118,53 @@ function jobOpprSeed() {
             else{
                 if (index === jobOppry.length - 1) {
                     console.log("Seeding Complete!");
+                    //createCSV();
                     mongoose.disconnect();
                     console.log("Database disconnected.");
+                    console.log(jobCount);
                 }
             }
         });
     });
 }
+
+
+// function createCSV() {
+//     const json2csv = require('json2csv').parse;
+
+//     const filePath = path.join(__dirname, "../../../", "public", "exports", "resolved-jobs.csv");
+
+//     let csv; 
+
+//     const student = await req.db.collection('Student').find({}).toArray();
+
+//     // Logging student
+//     // [{id:1,name:"John",country:"USA"},{id:1,name:"Ronny",country:"Germany"}]
+
+//     const fields = ['id','Job Title','Company Name', 'Job URL', 'Job Source'];
+
+//     try {
+//         csv = json2csv(resolved_jobs, {fields});
+//     } catch (err) {
+//         return res.status(500).json({err});
+//     }
+
+//     fs.writeFile(filePath, csv, function (err) {
+//         if (err) {
+//             return res.json(err).status(500);
+//         }
+//         else {
+//             setTimeout(function () {
+//                 fs.unlink(filePath, function (err) { // delete this file after 30 seconds
+//                 if (err) {
+//                     console.error(err);
+//                 }
+//                 console.log('File has been Deleted');
+//             });
+
+//         }, 30000);
+//             res.download(filePath);
+//         }
+//     })
+
+// }
