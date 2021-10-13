@@ -1,7 +1,22 @@
-# Job Tracker
+# Job Tracker #
 
 # Working of the program
 
+The project must first be initialized by loading the data from the CSV and JSON files into the database. In addition, the job opportunities needs to be resolved before loading it to the database. These are done by seed.js file in the path job-tracker -> server -> seeder by running the command `node seed`.
+After initilization, we will see all the job sources listed in a three column block in the home page. On clicking a specific job souce, it will redirect to another page where all the job opportunities are listed that are available in the respective job source.
+
+The front-end is implemented using React.js and back-end is implemented using Node.js, with MongoDB atlas being used as the database to store all the data. The usage of MERN stack approach makes the project scalable and adaptive. Furthermore, the usage of API to communicate between client and server, and the database makes it more secure and flexible.
+
+### File paths ###
+
+Server side             = job-tracker -> server
+Main file               = job-tracker -> server -> server.js
+Job resolution          = job-tracker -> server -> seeder -> seed.js
+CSV and JSON files      = job-tracker -> server -> data
+
+Client side             = job-tracker -> client
+Main entry point        = job-tracker -> client -> public -> index.html
+JavaScript entry point  = job-tracker -> client -> src -> index.js
 
 
 # Initlizing the project
@@ -48,14 +63,14 @@ Then run the application by entering the command below:
 
 # Third party libraries and packages used in the project
 
-# Client Side
+## Client Side ##
 
 1) React = This JavaScript library is used to develop front-end user interfaces. It is used for handling the view layer for web.
 2) Axios = It is used to make HTTP requests from node.js (server) in this project.
 3) Bootstrap = It is used for CSS styling to the HTML elements.
 4) React Router DOM = It enables us to implement dynamic routing in a web app. It facilitates component-based routing according to the needs of the project.
 
-# Server Side
+## Server Side ##
 
 1) Node.js = This framework is used for backend server-side programming in this project. It is used for API services.
 2) Express = It is used to set up middlewares to respond to HTTP Requests and define routing table which is used to perform different actions based on HTTP Method and URL.
@@ -63,6 +78,7 @@ Then run the application by entering the command below:
 4) Dotenv = It is used to automatically load environment variables from the .env file into the process.
 5) Cors = It is used to allow or restrict requested resources on a web server depend on where the HTTP request was initiated.
 6) CSVTOJSON = This module is used to convert the job opportunity data in CSV file to JSON format in order to resolve and load it into the database.
+7) json2csv = This package is used to convert json data into csv format in order to create a csv file.
 
 
 # Web App Link
@@ -70,5 +86,12 @@ Then run the application by entering the command below:
 
 # CSV file for resolved job opportunities
 
+https://drive.google.com/file/d/11hCffkKK8fk-beqeAxOmPrUGoxdrf-aa/view?usp=sharing
+The CSV file for the resolved jobs is generated during the seeding process, after all the resolution and seeding process has finished. The CSV file is saved in the path job-tracker -> server -> data -> resolved-jobs.csv.
 
-# A table or some other minimal visual representation showing the job source and the total count of job opportunities associated with that job source. Here’s a partial example. 
+
+# Visual representation of total count of job opportunities associated with each job source.
+
+https://ibb.co/M7RhLxs
+The above data can be reproduced by running the seed.js file in the server folder using `node seed` command from the path job-tracker -> server -> seeder -> seed.js. The output will be displayed as shown in the image, in the console where the command was executed.
+However, note that the seed.js file will resolve the job opportunities and load data to database as well.

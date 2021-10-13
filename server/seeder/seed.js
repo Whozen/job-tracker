@@ -3,21 +3,59 @@ const Sources = require("../models/job-sources.model");
 const mongoose = require("mongoose");
 const jobBoards = require("../data/jobBoards.json");
 const csvtojson = require("csvtojson");
+const json2csv = require('json2csv').parse;
+var path = require('path');
+const fs = require('fs');
 
-require('dotenv').config();
+require('dotenv').config({path:__dirname+'/../.env'});
 
+const uri = process.env.ATLAS_URI;
 const jobOppry = [];
 const jobSources = [];
 const sourcesList = jobBoards["job_boards"];
-
 const jobMap = [];
-const jobCount = new Map()
+const jobCount = new Map();
+
 jobCount.set('Company Website', 0);
 jobCount.set('Unknown', 0);
 
-loadSourceJSON();
+// Load Job Source data from jobSouce.json file into the job source model and arrays
+loadSourcefromJSON();
 
-async function loadSourceJSON() {
+// Open connection to MongoDB database
+mongoose.connect(uri);
+
+const connection = mongoose.connection;
+connection.once('open', () => {
+    console.log('Database connected.');
+    runSeed();
+});
+
+// Start seeding (importing) process
+async function runSeed() {
+    console.log("Seeding started...");
+    await jobSourceSeed();
+}
+
+// Import the job source data into the MongoDB database.
+// When all data has been imported, start processing job opportunities
+async function jobSourceSeed() {
+    jobSources.map(async (js, index) => {
+        await js.save((err, result) => {
+            if (err){
+                console.log(err);
+                return;
+            }
+            else{
+                if (index === jobSources.length - 1) {
+                    processOpprCSV();
+                }
+            }
+        });
+    });
+}
+
+async function loadSourcefromJSON() {
     let i = 0;
 
     for(let x in sourcesList) {
@@ -33,6 +71,7 @@ async function loadSourceJSON() {
     }
 }
 
+// Find source of job opportunity with the help of the URL associated with it
 function findSource(name, url) {
     if(url === "") {
         jobCount.set('Unknown', jobCount.get('Unknown') + 1);
@@ -54,7 +93,8 @@ function findSource(name, url) {
     }
 }
 
-function loadOpprJSON(csvData) {
+// Load JSON Job Opportunity data into the job opportunity model after resolving the data.
+function loadOpprfromJSON(csvData) {
     let i = 0;
     let src;
 
@@ -67,58 +107,36 @@ function loadOpprJSON(csvData) {
             jobURL: (csvData[x]['Job URL'] != undefined ? csvData[x]['Job URL'] : ''),
             jobSource: src
         });
+        csvData[x]['Job Source'] = src;
     }
+
+    return csvData;
 }
 
-//connect mongoose
-const uri = "mongodb+srv://admin123:admin123@cluster0.unsuc.mongodb.net/tracker?retryWrites=true&w=majority";
-mongoose.connect(uri);
-
-const connection = mongoose.connection;
-connection.once('open', () => {
-    console.log('Database connected.');
-    runSeed();
-});
-
-async function runSeed() {
-    console.log("Seeding started...");
-    await jobSourceSeed();
-}
-
-async function jobSourceSeed() {
-    jobSources.map(async (js, index) => {
-        await js.save((err, result) => {
-            if (err){
-                console.log(err);
-            }
-            else{
-                if (index === jobSources.length - 1) {
-                    readCSV();
-                }
-            }
-        });
-    });
-}
-
-function readCSV() {
+// Convert CSV data to JSON format and then import the data into database, and create CSV file for resolved jobs
+function processOpprCSV() {
+    let resJobs;
     csvtojson()
     .fromFile("../data/job_opportunities.csv")
     .then(csvData => {
-        loadOpprJSON(csvData);
+        resJobs = loadOpprfromJSON(csvData);
         jobOpprSeed();
+        createCSV(resJobs);
     });
 }
 
+// Import the job opportunity data into the MongoDB database.
+// When all data has been imported, disconnect the database and display the total number of jo opportunity associated with each job source in the console.
 function jobOpprSeed() {
     jobOppry.map(async (js, index) => {
         await js.save((err, result) => {
             if (err){
                 console.log(err);
+                return;
             }
             else{
                 if (index === jobOppry.length - 1) {
                     console.log("Seeding Complete!");
-                    //createCSV();
                     mongoose.disconnect();
                     console.log("Database disconnected.");
                     console.log(jobCount);
@@ -128,43 +146,30 @@ function jobOpprSeed() {
     });
 }
 
+// Create a CSV file from resolved jobs and save it in the path job-tracker/server/data/resolved-jobs.csv.
+function createCSV(csvData) {
+    let csv;
+    const filePath = path.join(__dirname, "../", "data", "resolved-jobs.csv");
+    const fields = ['ID (primary key)','Job Title','Company Name', 'Job URL', 'Job Source'];
 
-// function createCSV() {
-//     const json2csv = require('json2csv').parse;
+    try {
+        csv = json2csv(csvData, {fields});
+    } catch (err) {
+        console.log(err);
+        return;
+    }
 
-//     const filePath = path.join(__dirname, "../../../", "public", "exports", "resolved-jobs.csv");
-
-//     let csv; 
-
-//     const student = await req.db.collection('Student').find({}).toArray();
-
-//     // Logging student
-//     // [{id:1,name:"John",country:"USA"},{id:1,name:"Ronny",country:"Germany"}]
-
-//     const fields = ['id','Job Title','Company Name', 'Job URL', 'Job Source'];
-
-//     try {
-//         csv = json2csv(resolved_jobs, {fields});
-//     } catch (err) {
-//         return res.status(500).json({err});
-//     }
-
-//     fs.writeFile(filePath, csv, function (err) {
-//         if (err) {
-//             return res.json(err).status(500);
-//         }
-//         else {
-//             setTimeout(function () {
-//                 fs.unlink(filePath, function (err) { // delete this file after 30 seconds
-//                 if (err) {
-//                     console.error(err);
-//                 }
-//                 console.log('File has been Deleted');
-//             });
-
-//         }, 30000);
-//             res.download(filePath);
-//         }
-//     })
-
-// }
+    fs.open(filePath, 'w', function (err, file) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+    });
+    
+    fs.writeFile(filePath, csv, function (err) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+    })
+}

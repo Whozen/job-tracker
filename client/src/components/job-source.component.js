@@ -24,7 +24,7 @@ export default class JobSource extends Component {
     }
 
     componentDidMount() {
-        axios.get('http://localhost:5000/jobopprties/' + this.props.match.params.id)
+        axios.get(process.env.REACT_APP_SERVER_PATH + 'jobopprties/' + this.props.match.params.id)
         .then(response => {
             this.setState({
                 jobOppr: response.data,
@@ -35,7 +35,7 @@ export default class JobSource extends Component {
             console.log(error);
         })
 
-        axios.get('http://localhost:5000/jobsources/' + this.props.match.params.id)
+        axios.get(process.env.REACT_APP_SERVER_PATH + 'jobsources/' + this.props.match.params.id)
         .then(response => {
             this.setState({
                 sourceName: response.data

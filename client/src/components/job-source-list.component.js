@@ -30,7 +30,7 @@ export default class JobSourceList extends Component {
     }
 
     componentDidMount() {
-        axios.get('http://localhost:5000/jobsources/')
+        axios.get(process.env.REACT_APP_SERVER_PATH + 'jobsources/')
         .then(response => {
             console.log(response.data);
             this.setState({
