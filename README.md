@@ -1,6 +1,5 @@
 # Job Tracker #
 
-
 # Working of the program
 
 The project must first be initialized by loading the data from the CSV and JSON files into the database. In addition, the job opportunities needs to be resolved before loading it to the database. These are done by seed.js file in the path job-tracker -> server -> seeder by running the command `node seed`.
@@ -30,6 +29,8 @@ Go to the respective folders (job-tracker -> client) / (job-tracker -> server) <
 Run the following command to create node modules from package.json <br />
 `npm i`
 
+Create environment variable for both client and server side.
+Please refer to the `.env.sample` file inside root folder of both client (job-tracker/client) and server (job-tracker/server) to create your own `.env` file.
 
 # Importing data to the database and resolving the job source for job opportunities
 
@@ -50,7 +51,7 @@ Go to the server folder directory from root folder (job-tracker -> server): <br 
 `cd server`
 
 Then start the server by entering the command below: <br />
-`node server`
+`npm start`
 
 
 # Starting the frontend react app
@@ -84,6 +85,7 @@ Then run the application by entering the command below: <br />
 
 # Web App Link
 
+https://source-job-tracker.netlify.app/
 
 # CSV file for resolved job opportunities
 
