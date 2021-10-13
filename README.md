@@ -71,6 +71,8 @@ Then run the application by entering the command below: <br />
 2) Axios = It is used to make HTTP requests from node.js (server) in this project. <br />
 3) Bootstrap = It is used for CSS styling to the HTML elements. <br />
 4) React Router DOM = It enables us to implement dynamic routing in a web app. It facilitates component-based routing according to the needs of the project. <br />
+5) Netlify Lambda = This is used to develop Netlify functions since I used Netlify to host the website.
+6) Serverless HTTP = This module is used to allow the API for serverless use. This is also used for hosting purpose.
 
 ## Server Side ##
 
@@ -81,11 +83,14 @@ Then run the application by entering the command below: <br />
 5) Cors = It is used to allow or restrict requested resources on a web server depend on where the HTTP request was initiated. <br />
 6) CSVTOJSON = This module is used to convert the job opportunity data in CSV file to JSON format in order to resolve and load it into the database. <br />
 7) json2csv = This package is used to convert json data into csv format in order to create a csv file. <br />
+8) Netlify Lambda = This is used to develop Netlify functions since I used Netlify to host the website.
+9) Serverless HTTP = This module is used to allow the API for serverless use. This is also used for hosting purpose.
 
 
 # Web App Link
 
 https://source-job-tracker.netlify.app/
+
 
 # CSV file for resolved job opportunities
 
